@@ -2,7 +2,7 @@ package com.konstantinbulygin.onlinestore.controllers.restapi;
 
 import com.konstantinbulygin.onlinestore.model.Role;
 import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
-import com.konstantinbulygin.onlinestore.service.RoleService;
+import com.konstantinbulygin.onlinestore.service.RoleRepoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class TestController {
 
     @Autowired
-    RoleService roleService;
+    RoleRepoService roleRepoService;
 
     @GetMapping("/all")
     public String allAccess() {
@@ -35,8 +35,9 @@ public class TestController {
     }
 
     @PostMapping(value = "/addrole", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addRole(@RequestBody Role role) {
-        roleService.save(role);
+        roleRepoService.save(role);
         return ResponseEntity.ok(new MessageResponse(role.getRoleName().name() + " role added"));
     }
 }

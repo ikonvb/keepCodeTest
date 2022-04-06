@@ -9,8 +9,8 @@ import com.konstantinbulygin.onlinestore.model.restmodel.LoginRequest;
 import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.SignUpRequestUser;
 import com.konstantinbulygin.onlinestore.service.UserDetailsImpl;
-import com.konstantinbulygin.onlinestore.service.UserService;
-import com.konstantinbulygin.onlinestore.service.RoleService;
+import com.konstantinbulygin.onlinestore.service.UserRepoService;
+import com.konstantinbulygin.onlinestore.service.RoleRepoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +37,10 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    UserService userService;
+    UserRepoService userRepoService;
 
     @Autowired
-    RoleService roleService;
+    RoleRepoService roleRepoService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -66,6 +66,7 @@ public class AuthController {
                 jwt,
                 userDetails.getUserId(),
                 userDetails.getUsername(),
+                userDetails.getUserEmail(),
                 roles
         ));
 
@@ -73,30 +74,30 @@ public class AuthController {
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerUser(@RequestBody SignUpRequestUser signUpRequestUser) {
-        if (userService.existsByUserName(signUpRequestUser.getUserName())) {
+        if (userRepoService.existsByUserName(signUpRequestUser.getUserName())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: username exists"));
         }
 
-        User user = new User(signUpRequestUser.getUserName(),
+        User user = new User(signUpRequestUser.getUserName(), signUpRequestUser.getUserEmail(),
                 passwordEncoder.encode(signUpRequestUser.getUserPassword()), LocalDateTime.now());
 
         Set<String> reqRoles = signUpRequestUser.getRoles();
         Set<Role> roles = new HashSet<>();
 
         if (reqRoles == null) {
-            Role userRole = roleService
+            Role userRole = roleRepoService
                     .findByName(RoleEnum.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
             roles.add(userRole);
         } else {
             reqRoles.forEach(r -> {
                 if ("admin".equals(r)) {
-                    Role adminRole = roleService
+                    Role adminRole = roleRepoService
                             .findByName(RoleEnum.ROLE_ADMIN)
                             .orElseThrow(() -> new RuntimeException("Error, Role ADMIN is not found"));
                     roles.add(adminRole);
                 } else {
-                    Role userRole = roleService
+                    Role userRole = roleRepoService
                             .findByName(RoleEnum.ROLE_USER)
                             .orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
                     roles.add(userRole);
@@ -104,7 +105,7 @@ public class AuthController {
             });
         }
         user.setRoles(roles);
-        userService.save(user);
+        userRepoService.save(user);
         return ResponseEntity.ok(new MessageResponse("User CREATED"));
     }
 }

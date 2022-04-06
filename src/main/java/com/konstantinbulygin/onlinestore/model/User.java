@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,7 +17,8 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "user_name")
+        @UniqueConstraint(columnNames = {"user_name",
+                "user_email"})
 })
 public class User {
 
@@ -29,6 +31,12 @@ public class User {
     @NotEmpty
     @Column(name = "user_name")
     String userName;
+
+    @NotNull
+    @NotEmpty
+    @Email
+    @Column(name = "user_email")
+    String userEmail;
 
     @NotNull
     @NotEmpty
@@ -48,8 +56,9 @@ public class User {
     public User() {
     }
 
-    public User(String userName, String userPassword, LocalDateTime userDate) {
+    public User(String userName, String userEmail, String userPassword, LocalDateTime userDate) {
         this.userName = userName;
+        this.userEmail = userEmail;
         this.userPassword = userPassword;
         this.userDate = userDate;
     }

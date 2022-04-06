@@ -14,12 +14,12 @@ import javax.transaction.Transactional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    UserService userService;
+    UserRepoService userRepoService;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findByUserName(username);
+        User user = userRepoService.findByUserName(username);
         return UserDetailsImpl.build(user);
     }
 }

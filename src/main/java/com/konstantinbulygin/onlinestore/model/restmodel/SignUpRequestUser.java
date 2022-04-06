@@ -10,14 +10,16 @@ import java.util.Set;
 public class SignUpRequestUser {
 
     private String userName;
+    private String userEmail;
     private String userPassword;
     private Set<String> roles;
 
     public SignUpRequestUser() {
     }
 
-    public SignUpRequestUser(String userName, String userPassword, Set<String> roles) {
+    public SignUpRequestUser(String userName, String userEmail, String userPassword, Set<String> roles) {
         this.userName = userName;
+        this.userEmail = userEmail;
         this.userPassword = userPassword;
         this.roles = roles;
     }

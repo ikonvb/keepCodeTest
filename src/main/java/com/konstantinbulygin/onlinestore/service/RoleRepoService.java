@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class RoleService {
+public class RoleRepoService {
 
     @Autowired
     RoleRepository roleRepository;
