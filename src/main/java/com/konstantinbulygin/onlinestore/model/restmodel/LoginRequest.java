@@ -7,11 +7,14 @@ import lombok.Setter;
 @Setter
 public class LoginRequest {
 
-    private String outUsername;
-    private String password;
+    private String userName;
+    private String userPassword;
 
-    public LoginRequest(String outUsername, String password) {
-        this.outUsername = outUsername;
-        this.password = password;
+    public LoginRequest(String userName, String userPassword) {
+        this.userName = userName;
+        this.userPassword = userPassword;
+    }
+
+    public LoginRequest() {
     }
 }

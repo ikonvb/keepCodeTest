@@ -1,6 +1,5 @@
 package com.konstantinbulygin.onlinestore.model.restmodel;
 
-import com.konstantinbulygin.onlinestore.model.Role;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,9 +13,9 @@ public class JwtResponse {
     private final String type = "Bearer";
     private Integer id;
     private String outUserName;
-    private List<Role> roles;
+    private List<String> roles;
 
-    public JwtResponse(String token, Integer id, String outUserName, List<Role> roles) {
+    public JwtResponse(String token, Integer id, String outUserName, List<String> roles) {
         this.token = token;
         this.id = id;
         this.outUserName = outUserName;

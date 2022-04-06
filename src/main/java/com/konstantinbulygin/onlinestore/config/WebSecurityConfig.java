@@ -2,7 +2,7 @@ package com.konstantinbulygin.onlinestore.config;
 
 import com.konstantinbulygin.onlinestore.config.jwt.AuthEntryPointJwt;
 import com.konstantinbulygin.onlinestore.config.jwt.AuthTokenFilter;
-import com.konstantinbulygin.onlinestore.service.OutletUserDetailsService;
+import com.konstantinbulygin.onlinestore.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    OutletUserDetailsService outletUserDetailsService;
+    UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
@@ -50,6 +50,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                //.antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/swagger-ui/index.html/**").permitAll()
+                .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/api/test/**").permitAll()
                 .antMatchers("/data/show/order/**").permitAll()
                 .antMatchers("/data/show/orders").permitAll()
                 .antMatchers("/data/show/customer/**").permitAll()
@@ -60,7 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(outletUserDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(passwordEncoder());
     }
 
     @Bean

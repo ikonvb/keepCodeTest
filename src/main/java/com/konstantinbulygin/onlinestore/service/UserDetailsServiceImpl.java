@@ -1,21 +1,25 @@
 package com.konstantinbulygin.onlinestore.service;
 
-import com.konstantinbulygin.onlinestore.model.OutletUser;
+
+import com.konstantinbulygin.onlinestore.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
-public class OutletUserDetailsService implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    OutletUserService outletUserService;
+    UserService userService;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        OutletUser outletUser = outletUserService.findByUserName(username);
-        return OutletUserDetails.build(outletUser);
+        User user = userService.findByUserName(username);
+        return UserDetailsImpl.build(user);
     }
 }

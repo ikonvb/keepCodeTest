@@ -1,7 +1,9 @@
 package com.konstantinbulygin.onlinestore.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.konstantinbulygin.onlinestore.model.OutletUser;
+import com.konstantinbulygin.onlinestore.model.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,36 +13,38 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class OutletUserDetails implements UserDetails {
+@Getter
+@Setter
+public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer outUserId;
-    private String outUserName;
+    private Integer userId;
+    private String userName;
     @JsonIgnore
-    private String outUserPassword;
-    private LocalDateTime outUserDate;
+    private String userPassword;
+    private LocalDateTime userDate;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public OutletUserDetails(Integer outUserId, String outUserEmail, String outUserPassword, LocalDateTime outUserDate, Collection<? extends GrantedAuthority> authorities) {
-        this.outUserId = outUserId;
-        this.outUserName = outUserEmail;
-        this.outUserPassword = outUserPassword;
-        this.outUserDate = outUserDate;
+    public UserDetailsImpl(Integer userId, String userName, String userPassword, LocalDateTime userDate, Collection<? extends GrantedAuthority> authorities) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userPassword = userPassword;
+        this.userDate = userDate;
         this.authorities = authorities;
     }
 
-    public static OutletUserDetails build(OutletUser outletUser) {
+    public static UserDetailsImpl build(User user) {
 
-        List<GrantedAuthority> authorities = outletUser.getRoles().stream()
+        List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
                 .collect(Collectors.toList());
 
-        return new OutletUserDetails(
-                outletUser.getOutUserId(),
-                outletUser.getOutUserName(),
-                outletUser.getOutUserPassword(),
-                outletUser.getOutUserDate(),
+        return new UserDetailsImpl(
+                user.getUserId(),
+                user.getUserName(),
+                user.getUserPassword(),
+                user.getUserDate(),
                 authorities);
     }
 
@@ -51,12 +55,12 @@ public class OutletUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return outUserPassword;
+        return userPassword;
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return userName;
     }
 
     @Override

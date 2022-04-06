@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/data")
+@RequestMapping("/api/admin/data")
 @CrossOrigin(origins = "*")
 @Api("Main controller")
 public class MainRestController {
