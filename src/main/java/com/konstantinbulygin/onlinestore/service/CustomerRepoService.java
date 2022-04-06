@@ -22,11 +22,11 @@ public class CustomerRepoService {
         return customerRepository.save(customer);
     }
 
-    public Customer deleteByCustomerId(int id) {
-        return customerRepository.deleteByCustomerId(id);
-    }
-
     public Optional<Customer> findById(int id) {
         return customerRepository.findById(id);
+    }
+
+    public void deleteById(int id) {
+        customerRepository.deleteById(id);
     }
 }

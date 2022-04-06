@@ -20,8 +20,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry
-                .addResourceHandler("swagger-ui.html");
+        registry.addResourceHandler("swagger-ui.html");
     }
 
     private ApiInfo getApiInfo() {
@@ -40,7 +39,6 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .apis(RequestHandlerSelectors.basePackage("com.konstantinbulygin.onlinestore.controllers"))
                 .paths(PathSelectors.any())
                 .build();
-
     }
 
 }

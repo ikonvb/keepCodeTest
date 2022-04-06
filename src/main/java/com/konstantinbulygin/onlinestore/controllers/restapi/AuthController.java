@@ -1,16 +1,18 @@
 package com.konstantinbulygin.onlinestore.controllers.restapi;
 
 import com.konstantinbulygin.onlinestore.config.jwt.JwtUtils;
-import com.konstantinbulygin.onlinestore.model.User;
 import com.konstantinbulygin.onlinestore.model.Role;
 import com.konstantinbulygin.onlinestore.model.RoleEnum;
+import com.konstantinbulygin.onlinestore.model.User;
 import com.konstantinbulygin.onlinestore.model.restmodel.JwtResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.LoginRequest;
 import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.SignUpRequestUser;
+import com.konstantinbulygin.onlinestore.service.RoleRepoService;
 import com.konstantinbulygin.onlinestore.service.UserDetailsImpl;
 import com.konstantinbulygin.onlinestore.service.UserRepoService;
-import com.konstantinbulygin.onlinestore.service.RoleRepoService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(value = "*", maxAge = 3600)
+@ApiModel("Auth controller for all users")
 public class AuthController {
 
     @Autowired
@@ -48,8 +51,9 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> authUser(@RequestBody LoginRequest loginRequest) {
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Allow to login registered user")
+    public ResponseEntity<JwtResponse> authUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication =
                 authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(
@@ -73,7 +77,8 @@ public class AuthController {
     }
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> registerUser(@RequestBody SignUpRequestUser signUpRequestUser) {
+    @ApiOperation("Allow to register new user")
+    public ResponseEntity<MessageResponse> registerUser(@RequestBody SignUpRequestUser signUpRequestUser) {
         if (userRepoService.existsByUserName(signUpRequestUser.getUserName())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: username exists"));
         }

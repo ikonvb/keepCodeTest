@@ -22,11 +22,11 @@ public class OrderRepoService {
         return orderRepository.save(order);
     }
 
-    public Order deleteByOrderId(Integer id) {
-        return orderRepository.deleteByOrderId(id);
-    }
-
     public Optional<Order> findById(int id) {
         return orderRepository.findById(id);
+    }
+
+    public void deleteById(int id) {
+        orderRepository.deleteById(id);
     }
 }

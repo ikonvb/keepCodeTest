@@ -2,11 +2,12 @@ package com.konstantinbulygin.onlinestore.controllers.restapi;
 
 import com.konstantinbulygin.onlinestore.model.Customer;
 import com.konstantinbulygin.onlinestore.model.Order;
+import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.NewCustomer;
 import com.konstantinbulygin.onlinestore.model.restmodel.NewOrder;
 import com.konstantinbulygin.onlinestore.service.CustomerRepoService;
 import com.konstantinbulygin.onlinestore.service.OrderRepoService;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/data")
 @CrossOrigin(origins = "*")
-@Api("Main controller")
+@ApiModel("Main controller, allowed only for registered user")
 public class MainRestController {
 
     @Autowired
@@ -32,41 +33,41 @@ public class MainRestController {
     CustomerRepoService customerRepoService;
 
     @GetMapping(value = "/show/order/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Return one order")
+    @ApiOperation("Return an order by id")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Order> getOrderById(@PathVariable int id) {
         Optional<Order> order = orderRepoService.findById(id);
-        if (order.isPresent()) {
-            return new ResponseEntity<>(order.get(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return order.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = "/show/customer/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Return one customer")
+    @ApiOperation("Return a customer by id")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Customer> getCustomerById(@PathVariable int id) {
         Optional<Customer> customer = customerRepoService.findById(id);
-        if (customer.isPresent()) {
-            return new ResponseEntity<>(customer.get(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return customer.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(null, HttpStatus.OK));
     }
 
     @GetMapping(value = "/show/orders", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Returns list of orders")
+    @ApiOperation("Return list of orders")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<Order>> getOrders() {
         List<Order> orderList = orderRepoService.findAll();
-        return new ResponseEntity<>(orderList, HttpStatus.OK);
+        if (orderList.size() > 0) {
+            return new ResponseEntity<>(orderList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(orderList, HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(value = "/show/customers", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation("Returns list of customers")
+    @ApiOperation("Return list of customers")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<Customer>> getCustomers() {
         List<Customer> customerList = customerRepoService.findAll();
-        return new ResponseEntity<>(customerList, HttpStatus.OK);
+        if (customerList.size() > 0) {
+            return new ResponseEntity<>(customerList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(customerList, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/new/customer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,7 +80,7 @@ public class MainRestController {
         customer.setCustomerDate(LocalDateTime.now());
 
         Customer savedCustomer = customerRepoService.save(customer);
-        return new ResponseEntity<>(savedCustomer, HttpStatus.OK);
+        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
     }
 
     @PostMapping(value = "/new/order", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,7 +94,7 @@ public class MainRestController {
         order.setOderDate(LocalDateTime.now());
 
         Order savedOrder = orderRepoService.save(order);
-        return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+        return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
 
     @PatchMapping(value = "/update/customer/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +107,7 @@ public class MainRestController {
         if (oldCustomer.isPresent()) {
             oldCustomer.get().setCustomerName(newCustomer.getCustomerName());
             Customer savedCustomer = customerRepoService.save(oldCustomer.get());
-            return new ResponseEntity<>(savedCustomer, HttpStatus.OK);
+            return new ResponseEntity<>(savedCustomer, HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
@@ -123,7 +124,7 @@ public class MainRestController {
             oldOrder.get().setOrderCost(newOrder.getOrderCost());
             oldOrder.get().setCustomerId(newOrder.getCustomerId());
             Order savedOrder = orderRepoService.save(oldOrder.get());
-            return new ResponseEntity<>(savedOrder, HttpStatus.OK);
+            return new ResponseEntity<>(savedOrder, HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
@@ -131,16 +132,24 @@ public class MainRestController {
     @DeleteMapping(value = "/delete/order/{id}")
     @ApiOperation("Delete order by id")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Order> deleteOrderById(@PathVariable int id) {
-        Order deletedOrder = orderRepoService.deleteByOrderId(id);
-        return new ResponseEntity<>(deletedOrder, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> deleteOrderById(@PathVariable int id) {
+        Optional<Order> order = orderRepoService.findById(id);
+        if (order.isPresent()) {
+            orderRepoService.deleteById(id);
+            return ResponseEntity.ok(new MessageResponse("Order was deleted"));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(value = "/delete/customer/{id}")
     @ApiOperation("Delete customer by id")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Customer> deleteCustomerById(@PathVariable int id) {
-        Customer deletedCustomer = customerRepoService.deleteByCustomerId(id);
-        return new ResponseEntity<>(deletedCustomer, HttpStatus.ACCEPTED);
+    public ResponseEntity<?> deleteCustomerById(@PathVariable int id) {
+        Optional<Customer> customer = customerRepoService.findById(id);
+        if (customer.isPresent()) {
+            customerRepoService.deleteById(id);
+            return ResponseEntity.ok(new MessageResponse("Customer was deleted"));
+        }
+        return ResponseEntity.notFound().build();
     }
 }
