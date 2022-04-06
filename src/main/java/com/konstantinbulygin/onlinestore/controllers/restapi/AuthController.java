@@ -5,9 +5,9 @@ import com.konstantinbulygin.onlinestore.model.Role;
 import com.konstantinbulygin.onlinestore.model.RoleEnum;
 import com.konstantinbulygin.onlinestore.model.User;
 import com.konstantinbulygin.onlinestore.model.restmodel.JwtResponse;
-import com.konstantinbulygin.onlinestore.model.restmodel.LoginRequest;
 import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.SignUpRequestUser;
+import com.konstantinbulygin.onlinestore.model.restmodel.UserRequest;
 import com.konstantinbulygin.onlinestore.service.RoleRepoService;
 import com.konstantinbulygin.onlinestore.service.UserDetailsImpl;
 import com.konstantinbulygin.onlinestore.service.UserRepoService;
@@ -53,12 +53,12 @@ public class AuthController {
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Allow to login registered user")
-    public ResponseEntity<JwtResponse> authUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> authUser(@RequestBody UserRequest userRequest) {
         Authentication authentication =
                 authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(
-                                loginRequest.getUserName(),
-                                loginRequest.getUserPassword()));
+                                userRequest.getUserName(),
+                                userRequest.getUserPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -73,7 +73,12 @@ public class AuthController {
                 userDetails.getUserEmail(),
                 roles
         ));
+    }
 
+    @PostMapping(value = "/logout")
+    @ApiOperation("Logout user")
+    public ResponseEntity<MessageResponse> logoutUser() {
+        return ResponseEntity.ok(new MessageResponse("User logged out"));
     }
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

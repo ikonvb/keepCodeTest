@@ -5,16 +5,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginRequest {
+public class UserRequest {
 
     private String userName;
     private String userPassword;
 
-    public LoginRequest(String userName, String userPassword) {
+    public UserRequest(String userName, String userPassword) {
         this.userName = userName;
         this.userPassword = userPassword;
     }
 
-    public LoginRequest() {
+    public UserRequest() {
     }
 }

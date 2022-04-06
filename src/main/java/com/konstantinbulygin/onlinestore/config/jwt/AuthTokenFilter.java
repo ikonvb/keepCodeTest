@@ -20,6 +20,7 @@ import java.io.IOException;
 
 @Configuration
 public class AuthTokenFilter extends OncePerRequestFilter {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
