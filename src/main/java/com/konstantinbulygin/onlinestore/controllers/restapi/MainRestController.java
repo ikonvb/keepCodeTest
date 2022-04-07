@@ -2,11 +2,13 @@ package com.konstantinbulygin.onlinestore.controllers.restapi;
 
 import com.konstantinbulygin.onlinestore.model.Customer;
 import com.konstantinbulygin.onlinestore.model.Order;
+import com.konstantinbulygin.onlinestore.model.User;
 import com.konstantinbulygin.onlinestore.model.restmodel.MessageResponse;
 import com.konstantinbulygin.onlinestore.model.restmodel.NewCustomer;
 import com.konstantinbulygin.onlinestore.model.restmodel.NewOrder;
 import com.konstantinbulygin.onlinestore.service.CustomerRepoService;
 import com.konstantinbulygin.onlinestore.service.OrderRepoService;
+import com.konstantinbulygin.onlinestore.service.UserRepoService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class MainRestController {
 
     @Autowired
     CustomerRepoService customerRepoService;
+
+    @Autowired
+    UserRepoService userRepoService;
 
     @GetMapping(value = "/show/order/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Return an order by id")
@@ -68,6 +73,17 @@ public class MainRestController {
             return new ResponseEntity<>(customerList, HttpStatus.OK);
         }
         return new ResponseEntity<>(customerList, HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping(value = "/show/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation("Return list of customers")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<User>> getUsers() {
+        List<User> userList = userRepoService.findAll();
+        if (userList.size() > 0) {
+            return new ResponseEntity<>(userList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(userList, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "/new/customer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
